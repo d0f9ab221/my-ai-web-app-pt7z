@@ -1,0 +1,2626 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Web - Premium Developer Workspace</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            wa: {
+              teal: '#008069',
+              lightTeal: '#00a884',
+              darkTeal: '#005c4b',
+              bgLight: '#efeae2',
+              bgDark: '#0b141a',
+              bubbleSentLight: '#d9fdd3',
+              bubbleSentDark: '#005c4b',
+              bubbleRecLight: '#ffffff',
+              bubbleRecDark: '#202c33',
+              headerLight: '#f0f2f5',
+              headerDark: '#202c33',
+              sidebarLight: '#ffffff',
+              sidebarDark: '#111b21',
+              activeLight: '#f0f2f5',
+              activeDark: '#2a3942'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+<style>
+/* --- CSS: /styles.css --- */
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.2);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.6);
+}
+
+/* WhatsApp Wallpaper Background */
+.wa-wallpaper {
+  background-color: #efeae2;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%239C92AC' fill-opacity='0.06'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.dark .wa-wallpaper {
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Custom Animations */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Message Bubble Hover Actions */
+.message-bubble {
+  transition: all 0.2s ease;
+}
+
+.message-bubble:hover .message-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.message-actions {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.15s ease;
+}
+
+/* Status Indicators */
+.status-online {
+  background-color: #10b981;
+}
+
+.status-away {
+  background-color: #f59e0b;
+}
+
+.status-dnd {
+  background-color: #ef4444;
+}
+
+/* Custom styling for emoji picker */
+#emoji-picker {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* WhatsApp Status Ring */
+.status-ring-active {
+  border: 2px solid #00a884;
+  padding: 2px;
+}
+
+/* Waveform Simulation for Voice Notes */
+.waveform-bar {
+  width: 3px;
+  background-color: #a0aec0;
+  border-radius: 9999px;
+  transition: height 0.15s ease;
+}
+
+.playing .waveform-bar {
+  background-color: #00a884;
+  animation: waveBounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes waveBounce {
+  from { height: 4px; }
+  to { height: 20px; }
+}
+
+/* Virtual Keyboard Key Styles */
+.keyboard-key {
+  display: flex;
+  align-items: center;
+  justify-center: center;
+  height: 44px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.1s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.keyboard-key:active {
+  transform: scale(0.92);
+  filter: brightness(0.85);
+}
+</style></head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans h-screen overflow-hidden transition-colors duration-200 flex items-center justify-center">
+
+  <!-- App Container (WhatsApp Web Style Frame) -->
+  <div id="app" class="w-full h-full md:h-[95vh] md:w-[98vw] lg:w-[95vw] xl:w-[1600px] md:rounded-xl md:shadow-2xl overflow-hidden flex flex-col bg-wa-sidebarLight dark:bg-wa-sidebarDark border border-slate-200 dark:border-slate-800/50">
+    
+    <!-- 1. AUTHENTICATION SCREEN -->
+    <div id="auth-screen" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-wa-darkTeal via-wa-teal to-emerald-900">
+      <div class="max-w-md w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+        <!-- Decorative background glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 text-center">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-6 animate-pulse">
+            <i data-lucide="message-square" class="w-8 h-8"></i>
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-white mb-2">WhatsApp Web</h1>
+          <p class="text-slate-400 text-sm mb-8">Premium developer & tech community workspace clone.</p>
+
+          <!-- Connection Status Badge -->
+          <div id="db-status-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+            Connecting to Firebase...
+          </div>
+
+          <!-- Auth Buttons -->
+          <div class="space-y-4">
+            <button id="btn-google-login" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-white/10">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.53 14.98 1 12 1 7.35 1 3.4 3.65 1.5 7.5l3.86 3c.9-2.7 3.4-4.46 6.64-4.46z"/>
+                <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.9c2.18-2.01 3.7-4.96 3.7-8.63z"/>
+                <path fill="#FBBC05" d="M5.36 14.5c-.24-.72-.38-1.49-.38-2.3s.14-1.58.38-2.3L1.5 6.9C.54 8.82 0 10.96 0 13.2s.54 4.38 1.5 6.3l3.86-3z"/>
+                <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.73-2.9c-1.1.74-2.52 1.18-4.23 1.18-3.24 0-5.74-1.76-6.64-4.46L1.5 16.9C3.4 20.75 7.35 23 12 23z"/>
+              </svg>
+              Sign in with Google
+            </button>
+
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+              <span class="relative bg-slate-950 px-3 text-xs text-slate-500 uppercase tracking-wider">Or try instantly</span>
+            </div>
+
+            <button id="btn-demo-login" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 border border-emerald-500">
+              <i data-lucide="sparkles" class="w-5 h-5 text-emerald-200 animate-pulse"></i>
+              Enter as Guest (Demo Mode)
+            </button>
+          </div>
+
+          <!-- Info / Credentials Help -->
+          <div class="mt-8 text-left bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 space-y-2">
+            <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <i data-lucide="info" class="w-4 h-4"></i>
+              <span>Developer Credentials Configured</span>
+            </div>
+            <p class="font-mono text-[10px] break-all bg-slate-900 p-1.5 rounded border border-slate-800/50">
+              Client ID: 25363042028-i27aanj949h4mn5ga9tq612j2ncgludt.apps.googleusercontent.com
+            </p>
+            <p class="leading-relaxed">
+              If Google Sign-In fails due to sandbox domain restrictions, use the <strong>Guest Mode</strong>. It simulates a fully active real-time chat experience with AI bots!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MAIN APP WORKSPACE (Hidden by default) -->
+    <div id="main-workspace" class="hidden flex-1 flex overflow-hidden relative h-full">
+      
+      <!-- SIDEBAR (WhatsApp Left Panel) -->
+      <aside id="sidebar" class="w-full md:w-[380px] lg:w-[420px] bg-wa-sidebarLight dark:bg-wa-sidebarDark flex flex-col border-r border-slate-200 dark:border-slate-800/80 shrink-0 transition-all duration-300 md:translate-x-0 z-30 h-full absolute md:static">
+        
+        <!-- Sidebar Header -->
+        <div class="h-[60px] px-4 bg-wa-headerLight dark:bg-wa-headerDark flex items-center justify-between shrink-0 border-b border-slate-200 dark:border-slate-800/50">
+          <!-- User Profile Trigger -->
+          <div class="flex items-center gap-3 cursor-pointer group" id="btn-edit-profile">
+            <div class="relative shrink-0">
+              <img id="user-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=60" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-slate-300 dark:border-slate-700 group-hover:border-emerald-500 transition-all">
+              <span id="user-status-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-wa-headerLight dark:border-wa-headerDark bg-emerald-500"></span>
+            </div>
+            <div class="hidden sm:block max-w-[120px]">
+              <h4 id="user-name" class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate group-hover:text-emerald-500 transition-colors">Developer</h4>
+            </div>
+          </div>
+
+          <!-- Action Icons -->
+          <div class="flex items-center gap-1">
+            <!-- Status (Stories) Button -->
+            <button id="btn-status-stories" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 relative" title="Status Updates">
+              <i data-lucide="circle-dot" class="w-5 h-5"></i>
+              <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white dark:border-slate-900"></span>
+            </button>
+            <!-- Start Chat by User ID -->
+            <button id="btn-add-by-id" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-emerald-600 dark:text-emerald-400" title="Start Chat by User ID">
+              <i data-lucide="user-plus" class="w-5 h-5"></i>
+            </button>
+            <!-- New Chat / Group Button -->
+            <button id="btn-add-room" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" title="New Group Chat">
+              <i data-lucide="message-square-plus" class="w-5 h-5"></i>
+            </button>
+            <!-- Theme Toggle -->
+            <button id="btn-theme-toggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" title="Toggle Theme">
+              <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+              <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+            </button>
+            <!-- Logout -->
+            <button id="btn-logout" class="p-2 rounded-full hover:bg-red-500/10 text-slate-500 hover:text-red-500" title="Sign Out">
+              <i data-lucide="log-out" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filter Chats -->
+        <div class="p-2 bg-wa-sidebarLight dark:bg-wa-sidebarDark border-b border-slate-100 dark:border-slate-900/50 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400 dark:text-slate-500"></i>
+              <input id="room-search" type="text" placeholder="Search chats or type User ID..." class="w-full bg-slate-100 dark:bg-slate-900 border-0 rounded-lg pl-10 pr-3 py-1.5 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all">
+            </div>
+            <button id="btn-filter-unread" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500" title="Filter Unread">
+              <i data-lucide="filter" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <!-- Quick ID Search Helper -->
+          <div id="search-id-helper" class="hidden px-2 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-between text-xs">
+            <span class="text-emerald-600 dark:text-emerald-400 font-medium">No chat found. Start DM?</span>
+            <button id="btn-quick-start-dm" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded font-semibold transition-colors">Start Chat</button>
+          </div>
+        </div>
+
+        <!-- Live Search Results (Hidden by default) -->
+        <div id="search-results-container" class="hidden bg-emerald-500/5 dark:bg-emerald-500/10 border-b border-slate-200 dark:border-slate-800/50 max-h-60 overflow-y-auto">
+          <div class="p-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Global Users Found</span>
+            <button id="btn-clear-search" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-[10px] normal-case">Clear</button>
+          </div>
+          <div id="search-results-list" class="divide-y divide-slate-100 dark:divide-slate-900/20">
+            <!-- Dynamic search results -->
+          </div>
+        </div>
+
+        <!-- Unified Chats List (WhatsApp Style) -->
+        <div class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-900/40" id="rooms-list">
+          <!-- Dynamic Chats (Groups & Direct Messages) -->
+        </div>
+
+        <!-- Connection Indicator Footer -->
+        <div class="p-2.5 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-200 dark:border-slate-900/50 flex items-center justify-between text-xs text-slate-500">
+          <div id="connection-indicator" class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>Connected</span>
+          </div>
+          <span class="font-mono text-[10px] opacity-75">v2.5.0-keyboard-update</span>
+        </div>
+      </aside>
+
+      <!-- CHAT AREA (WhatsApp Right Panel) -->
+      <main class="flex-1 flex flex-col bg-wa-bgLight dark:bg-wa-bgDark relative overflow-hidden h-full">
+        
+        <!-- Chat Header -->
+        <header class="h-[60px] px-4 bg-wa-headerLight dark:bg-wa-headerDark flex items-center justify-between shrink-0 border-b border-slate-200 dark:border-slate-800/50 z-10 shadow-sm">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <!-- Mobile Back Button -->
+            <button id="btn-back-to-sidebar" class="md:hidden p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            
+            <!-- Active Chat Avatar -->
+            <div class="relative shrink-0 cursor-pointer" id="active-chat-avatar-container">
+              <img id="active-chat-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=60" alt="Chat Avatar" class="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-800">
+              <span id="active-chat-status-dot" class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-wa-headerLight dark:border-wa-headerDark bg-emerald-500 hidden"></span>
+            </div>
+
+            <div class="overflow-hidden cursor-pointer" id="active-chat-info-trigger">
+              <h3 id="active-room-title" class="font-semibold text-slate-800 dark:text-white text-sm truncate">general</h3>
+              <p id="active-room-desc" class="text-xs text-slate-500 dark:text-slate-400 truncate">online</p>
+            </div>
+          </div>
+
+          <!-- Header Actions -->
+          <div class="flex items-center gap-1.5">
+            <!-- Simulated Call Buttons -->
+            <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hidden sm:inline-flex" onclick="simulateCall('video')" title="Video Call">
+              <i data-lucide="video" class="w-4 h-4"></i>
+            </button>
+            <button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hidden sm:inline-flex" onclick="simulateCall('audio')" title="Voice Call">
+              <i data-lucide="phone" class="w-4 h-4"></i>
+            </button>
+            <div class="w-px h-5 bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+            <!-- Search Messages -->
+            <div class="relative hidden lg:block">
+              <i data-lucide="search" class="absolute left-3 top-2 w-3.5 h-3.5 text-slate-400"></i>
+              <input id="message-search" type="text" placeholder="Search chat..." class="bg-slate-100 dark:bg-slate-900 border-0 rounded-full pl-8 pr-3 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all w-36 focus:w-48">
+            </div>
+            <!-- Toggle Right Panel -->
+            <button id="btn-toggle-details" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" title="Contact Info">
+              <i data-lucide="info" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- Messages Container (WhatsApp Wallpaper Background) -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-3 scroll-smooth wa-wallpaper relative">
+          <!-- Dynamic Messages -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="px-6 py-1.5 text-xs text-slate-500 dark:text-slate-400 italic flex items-center gap-2 bg-wa-bgLight/90 dark:bg-wa-bgDark/90 backdrop-blur-sm hidden">
+          <div class="flex gap-1">
+            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+          </div>
+          <span id="typing-text">Someone is typing...</span>
+        </div>
+
+        <!-- Message Input Area (WhatsApp Style) -->
+        <div class="p-3 bg-wa-headerLight dark:bg-wa-headerDark border-t border-slate-200 dark:border-slate-900/50 shrink-0 relative z-20">
+          <form id="message-form" class="flex items-center gap-2.5">
+            <!-- Emoji Button -->
+            <div class="relative shrink-0">
+              <button type="button" id="btn-emoji" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" title="Emojis">
+                <i data-lucide="smile" class="w-6 h-6"></i>
+              </button>
+              <!-- Emoji Picker Dropdown -->
+              <div id="emoji-picker" class="hidden absolute bottom-14 left-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-3 z-50 w-64">
+                <div class="grid grid-cols-6 gap-2 text-xl text-center" id="emoji-grid">
+                  <!-- Emojis injected here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Attachment Button -->
+            <div class="relative shrink-0">
+              <button type="button" id="btn-attach" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" title="Attach File">
+                <i data-lucide="paperclip" class="w-5 h-5"></i>
+              </button>
+            </div>
+
+            <!-- Text Input & Attachment Preview Container -->
+            <div class="flex-1 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden px-3 py-1.5">
+              <!-- Attachment Preview (Hidden by default) -->
+              <div id="attachment-preview" class="hidden flex items-center justify-between bg-slate-100 dark:bg-slate-800 p-2 rounded-lg mb-1.5">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="image" class="w-4 h-4 text-emerald-500"></i>
+                  <span class="text-xs font-medium truncate max-w-[200px]" id="attachment-name">image.png</span>
+                </div>
+                <button type="button" id="btn-remove-attachment" class="text-slate-400 hover:text-red-500">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Textarea -->
+              <textarea id="message-input" rows="1" placeholder="Type a message (Click to show keyboard)" class="w-full bg-transparent border-0 resize-none focus:outline-none focus:ring-0 text-sm py-1 max-h-24 min-h-[24px] text-slate-800 dark:text-slate-100" required></textarea>
+            </div>
+
+            <!-- Send / Voice Record Button -->
+            <div class="shrink-0 flex items-center">
+              <!-- Voice Note Recording Timer (Hidden by default) -->
+              <span id="voice-timer" class="hidden text-xs font-mono text-red-500 mr-2 animate-pulse">0:00</span>
+              
+              <button type="submit" id="btn-send-msg" class="p-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-md flex items-center justify-center">
+                <i data-lucide="send" class="w-5 h-5" id="icon-send"></i>
+                <i data-lucide="mic" class="w-5 h-5 hidden" id="icon-mic"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- SIMULATED MOBILE KEYBOARD (Slides up from bottom, input sits on top) -->
+        <div id="virtual-keyboard" class="hidden bg-slate-200 dark:bg-slate-950 border-t border-slate-300 dark:border-slate-900 p-2 select-none transition-all duration-300 shrink-0 z-10">
+          <!-- Keyboard Header / Toolbar -->
+          <div class="flex items-center justify-between px-2 pb-2 text-xs text-slate-500 dark:text-slate-400 border-b border-slate-300 dark:border-slate-900 mb-2">
+            <span class="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+              <i data-lucide="keyboard" class="w-3.5 h-3.5"></i>
+              Simulated Mobile Keyboard
+            </span>
+            <button id="btn-close-keyboard" class="text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-1 font-semibold">
+              Hide <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <!-- Keyboard Rows -->
+          <div class="space-y-1.5 max-w-2xl mx-auto" id="keyboard-rows">
+            <!-- Injected dynamically by app.js -->
+          </div>
+        </div>
+      </main>
+
+      <!-- RIGHT PANEL (WhatsApp Contact / Group Info) -->
+      <aside id="right-panel" class="w-80 border-l border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col shrink-0 hidden lg:flex h-full">
+        <div class="h-[60px] px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0 bg-wa-headerLight dark:bg-wa-headerDark">
+          <h3 class="font-bold text-slate-800 dark:text-white text-sm">Contact Info</h3>
+          <button id="btn-close-details" class="p-1.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+          <!-- Contact Card -->
+          <div class="flex flex-col items-center text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm">
+            <img id="detail-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=60" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-2 border-emerald-500 mb-3">
+            <h4 class="text-base font-bold text-slate-800 dark:text-white" id="detail-room-name">#general</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="detail-room-status">online</p>
+            <p class="text-[10px] font-mono text-slate-400 dark:text-slate-500 mt-1 bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800/50" id="detail-room-id">ID: general</p>
+          </div>
+
+          <!-- About / Description -->
+          <div>
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">About</h4>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 space-y-2">
+              <div>
+                <span class="text-[10px] text-slate-400 block">Description</span>
+                <p class="text-xs text-slate-600 dark:text-slate-300" id="detail-room-desc">Welcome to the general discussion channel!</p>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 block">Created By</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-medium" id="detail-room-creator">System</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Media, Links and Docs -->
+          <div>
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Media, Links and Docs</h4>
+            <div class="grid grid-cols-3 gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+              <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=120&auto=format&fit=crop&q=60" class="w-full h-14 object-cover rounded-lg cursor-pointer hover:opacity-80" onclick="window.open(this.src)">
+              <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=120&auto=format&fit=crop&q=60" class="w-full h-14 object-cover rounded-lg cursor-pointer hover:opacity-80" onclick="window.open(this.src)">
+              <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=120&auto=format&fit=crop&q=60" class="w-full h-14 object-cover rounded-lg cursor-pointer hover:opacity-80" onclick="window.open(this.src)">
+            </div>
+          </div>
+
+          <!-- Active Members in Channel (Only visible for groups) -->
+          <div id="detail-members-section">
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Group Members</h4>
+            <div id="detail-members-list" class="space-y-2">
+              <!-- Dynamic Members -->
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 3. MODALS -->
+    
+    <!-- Create Room Modal -->
+    <div id="modal-create-room" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-scale-up">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Create a Group Chat</h3>
+          <button class="btn-close-modal p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <form id="form-create-room" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Group Name</label>
+            <input type="text" id="new-room-name" placeholder="e.g. React Developers" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Description</label>
+            <textarea id="new-room-desc" placeholder="What is this group about?" rows="2" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" class="btn-close-modal px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-lg shadow-emerald-500/10">Create Group</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Start Chat by User ID Modal -->
+    <div id="modal-add-by-id" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-scale-up">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Start Chat by User ID</h3>
+          <button class="btn-close-modal p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <form id="form-add-by-id" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Enter User ID</label>
+            <input type="text" id="search-user-id" placeholder="e.g. elon-musk, mark-z, or any custom ID" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+          </div>
+          
+          <!-- Discoverable Users Suggestions -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Suggested Tech Leaders</label>
+            <div class="grid grid-cols-2 gap-2" id="discoverable-users-list">
+              <!-- Injected dynamically by app.js -->
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" class="btn-close-modal px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-lg shadow-emerald-500/10">Start Chat</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="modal-edit-profile" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-scale-up">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edit Profile</h3>
+          <button class="btn-close-modal p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <form id="form-edit-profile" class="space-y-4">
+          <div class="flex flex-col items-center gap-3 mb-4">
+            <div class="relative group">
+              <img id="edit-avatar-preview" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=60" alt="Avatar Preview" class="w-24 h-24 rounded-full object-cover border-2 border-emerald-500 shadow-lg">
+              <button type="button" id="btn-random-avatar" class="absolute bottom-0 right-0 bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-full shadow-lg transition-all" title="Randomize Avatar">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <span class="text-xs text-slate-400">Click the button to generate a random avatar</span>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Display Name</label>
+            <input type="text" id="edit-display-name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status Message</label>
+            <input type="text" id="edit-status-text" placeholder="What's on your mind?" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Availability</label>
+            <select id="edit-availability" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+              <option value="online">Active</option>
+              <option value="away">Away</option>
+              <option value="dnd">Do Not Disturb</option>
+            </select>
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" class="btn-close-modal px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium shadow-lg shadow-emerald-500/10">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- WhatsApp Status (Stories) Viewer Modal -->
+    <div id="modal-status-viewer" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center z-50 p-4">
+      <!-- Top Progress Bars -->
+      <div class="w-full max-w-md flex gap-1.5 mb-4" id="status-progress-container">
+        <!-- Dynamic progress bars -->
+      </div>
+      
+      <!-- Status Header -->
+      <div class="w-full max-w-md flex items-center justify-between text-white mb-4">
+        <div class="flex items-center gap-3">
+          <img id="status-user-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-emerald-500">
+          <div>
+            <h4 id="status-user-name" class="font-bold text-sm">Contact Name</h4>
+            <span id="status-time" class="text-xs text-slate-400">Just now</span>
+          </div>
+        </div>
+        <button id="btn-close-status" class="p-1.5 rounded-full hover:bg-white/10 text-white">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Status Content (Image or Text) -->
+      <div class="w-full max-w-md flex-1 flex items-center justify-center relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800">
+        <img id="status-image" src="" class="max-w-full max-h-[60vh] object-contain hidden">
+        <div id="status-text-bg" class="w-full h-full flex items-center justify-center p-8 text-center text-2xl font-bold text-white hidden">
+          <p id="status-text-content"></p>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div class="w-full max-w-md flex justify-between text-white mt-4 text-xs px-2">
+        <button id="btn-prev-status" class="flex items-center gap-1 hover:text-emerald-400"><i data-lucide="chevron-left" class="w-4 h-4"></i> Previous</button>
+        <button id="btn-next-status" class="flex items-center gap-1 hover:text-emerald-400">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Scripts -->
+  
+  
+  
+<script type="text/javascript">
+/* --- Script: /data.js --- */
+// Global Data Store
+window.AppData = {
+  // Unified WhatsApp-style Chats (Groups & Direct Messages)
+  defaultRooms: [
+    {
+      id: 'general',
+      name: 'CS Tech Community 💻',
+      desc: 'The official group chat for developers, designers, and tech enthusiasts.',
+      creator: 'System',
+      isGroup: true,
+      avatar: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=120&auto=format&fit=crop&q=60',
+      unreadCount: 0
+    },
+    {
+      id: 'bot-alice',
+      name: 'Alice (AI Assistant)',
+      desc: 'Your friendly neighborhood AI assistant. Ask me anything about code!',
+      creator: 'System',
+      isGroup: false,
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=60',
+      unreadCount: 2
+    },
+    {
+      id: 'bot-bob',
+      name: 'Bob (Lead Developer)',
+      desc: 'Senior Full-Stack Engineer. Always debugging production.',
+      creator: 'System',
+      isGroup: false,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=60',
+      unreadCount: 0
+    },
+    {
+      id: 'bot-charlie',
+      name: 'Charlie (UI/UX Designer)',
+      desc: 'Pixel perfect designer. Obsessed with dark mode and micro-interactions.',
+      creator: 'System',
+      isGroup: false,
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=60',
+      unreadCount: 0
+    },
+    {
+      id: 'bot-diana',
+      name: 'Diana (Product Manager)',
+      desc: 'Keeping the roadmap clean and the sprints on track.',
+      creator: 'System',
+      isGroup: false,
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=120&auto=format&fit=crop&q=60',
+      unreadCount: 0
+    }
+  ],
+
+  // Discoverable Users for ID Search
+  discoverableUsers: [
+    {
+      id: 'elon-musk',
+      name: 'Elon Musk',
+      avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&auto=format&fit=crop&q=60',
+      desc: 'Mars & Cars. Let that sink in.',
+      reply: 'Let\'s make humanity multiplanetary! 🚀'
+    },
+    {
+      id: 'mark-z',
+      name: 'Mark Zuckerberg',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=60',
+      desc: 'Building the future of social connection in the metaverse.',
+      reply: 'Llama 3 is looking absolutely incredible. Let\'s build open source AI!'
+    },
+    {
+      id: 'linus-t',
+      name: 'Linus Torvalds',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=60',
+      desc: 'I do talk dirty to people. Linux creator.',
+      reply: 'Talk is cheap. Show me the code.'
+    },
+    {
+      id: 'ada-l',
+      name: 'Ada Lovelace',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=60',
+      desc: 'The first computer programmer in history.',
+      reply: 'That brain of mine is something more than merely mortal; as time will show.'
+    }
+  ],
+
+  // Pre-populated messages for WhatsApp Web Clone
+  mockMessages: [
+    {
+      id: 'msg-1',
+      roomId: 'general',
+      senderId: 'bot-alice',
+      senderName: 'Alice (AI Assistant)',
+      senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=60',
+      text: 'Welcome to our WhatsApp Web Developer Workspace! Feel free to chat with us or test out the simulated voice notes! 🎙️',
+      timestamp: Date.now() - 3600000 * 2,
+      reactions: { '👍': 3, '🔥': 2 },
+      read: true
+    },
+    {
+      id: 'msg-2',
+      roomId: 'general',
+      senderId: 'bot-bob',
+      senderName: 'Bob (Lead Developer)',
+      senderAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=60',
+      text: 'Just deployed the new Web Audio API synthesizer. The notification sounds are super crisp now! 🚀',
+      timestamp: Date.now() - 3600000,
+      reactions: { '❤️': 4, '💻': 1 },
+      read: true
+    },
+    {
+      id: 'msg-3',
+      roomId: 'bot-alice',
+      senderId: 'bot-alice',
+      senderName: 'Alice (AI Assistant)',
+      senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=60',
+      text: 'Hey! I noticed you logged in. Need any help with React, Tailwind, or Firebase today? ⚛️',
+      timestamp: Date.now() - 1800000,
+      reactions: {},
+      read: false
+    }
+  ],
+
+  // WhatsApp Status Updates (Stories)
+  mockStatuses: [
+    {
+      id: 'status-1',
+      userId: 'bot-alice',
+      userName: 'Alice (AI Assistant)',
+      userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=60',
+      timestamp: '2 hours ago',
+      type: 'text',
+      content: 'Coding the night away... 💻✨ React v19 is looking absolutely incredible!',
+      bgColor: 'bg-gradient-to-br from-purple-600 to-indigo-900'
+    },
+    {
+      id: 'status-2',
+      userId: 'bot-bob',
+      userName: 'Bob (Lead Developer)',
+      userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=60',
+      timestamp: '4 hours ago',
+      type: 'image',
+      content: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=60',
+      caption: 'Production is finally stable! Time for coffee ☕'
+    },
+    {
+      id: 'status-3',
+      userId: 'bot-charlie',
+      userName: 'Charlie (UI/UX Designer)',
+      userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=60',
+      timestamp: 'Just now',
+      type: 'text',
+      content: 'Design is not just what it looks like and feels like. Design is how it works. 🎨',
+      bgColor: 'bg-gradient-to-br from-emerald-500 to-teal-800'
+    }
+  ],
+
+  // List of emojis for the emoji picker
+  emojis: ['😀', '😂', '🤣', '😊', '😍', '🤔', '👍', '👎', '❤️', '🔥', '🎉', '🚀', '👀', '💯', '✨', '💻', '🎨', '🍕']
+};
+
+/* --- Script: /utils.js --- */
+// Web Audio API Synthesizer for WhatsApp Sound Effects
+window.SoundEffects = {
+  ctx: null,
+
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+
+  // WhatsApp Outgoing Message Sound
+  playSend() {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.08);
+    
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.08);
+  },
+
+  // WhatsApp Incoming Message Sound
+  playReceive() {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(850, this.ctx.currentTime + 0.05);
+    
+    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.25);
+  },
+
+  // Click Sound
+  playClick() {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+    
+    gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.05);
+  },
+
+  // Voice Note Start/Stop Sound
+  playRecording(isStart) {
+    this.init();
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = 'sine';
+    if (isStart) {
+      osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+    } else {
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.1);
+    }
+    
+    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.1);
+  }
+};
+
+// Firebase & LocalStorage Manager
+window.FirebaseManager = {
+  db: null,
+  auth: null,
+  isFirebaseReady: false,
+
+  init(config, onStatusChange) {
+    try {
+      // Initialize Firebase Compat
+      firebase.initializeApp(config);
+      this.db = firebase.firestore();
+      this.auth = firebase.auth();
+      this.isFirebaseReady = true;
+      console.log("Firebase initialized successfully.");
+      if (onStatusChange) onStatusChange(true);
+    } catch (error) {
+      console.warn("Firebase initialization failed. Falling back to LocalStorage Demo Mode.", error);
+      this.isFirebaseReady = false;
+      if (onStatusChange) onStatusChange(false);
+    }
+  },
+
+  // Auth Methods
+  signInWithGoogle() {
+    if (!this.isFirebaseReady) {
+      throw new Error("Firebase is not initialized. Please use Demo Mode.");
+    }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    return this.auth.signInWithPopup(provider);
+  },
+
+  signOut() {
+    if (this.isFirebaseReady) {
+      return this.auth.signOut();
+    }
+    return Promise.resolve();
+  },
+
+  // Sync User Profile to Firestore
+  syncUser(user) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('users').doc(user.id).set(user, { merge: true });
+    } else {
+      let users = JSON.parse(localStorage.getItem('cs_chat_users') || '[]');
+      if (!users.some(u => u.id === user.id)) {
+        users.push(user);
+        localStorage.setItem('cs_chat_users', JSON.stringify(users));
+      }
+      return Promise.resolve();
+    }
+  },
+
+  // Fetch Single User Profile
+  getUser(userId, callback) {
+    if (this.isFirebaseReady) {
+      this.db.collection('users').doc(userId).get().then(doc => {
+        if (doc.exists) {
+          callback(doc.data());
+        } else {
+          const discUser = window.AppData.discoverableUsers.find(u => u.id === userId);
+          callback(discUser || null);
+        }
+      }).catch(() => callback(null));
+    } else {
+      let users = JSON.parse(localStorage.getItem('cs_chat_users') || '[]');
+      const user = users.find(u => u.id === userId) || window.AppData.discoverableUsers.find(u => u.id === userId);
+      callback(user || null);
+    }
+  },
+
+  // Search Global Users in Real-Time
+  searchUsers(query, currentUserId, callback) {
+    if (this.isFirebaseReady) {
+      this.db.collection('users').limit(100).get().then(snapshot => {
+        const users = [];
+        snapshot.forEach(doc => {
+          const u = doc.data();
+          if (u.id !== currentUserId && (u.name.toLowerCase().includes(query.toLowerCase()) || u.id.toLowerCase().includes(query.toLowerCase()))) {
+            users.push(u);
+          }
+        });
+        callback(users);
+      }).catch(err => {
+        console.error("Error searching users:", err);
+        callback([]);
+      });
+    } else {
+      let users = JSON.parse(localStorage.getItem('cs_chat_users') || '[]');
+      window.AppData.discoverableUsers.forEach(du => {
+        if (!users.some(u => u.id === du.id)) {
+          users.push({ id: du.id, name: du.name, avatar: du.avatar, status: 'online', statusText: du.desc });
+        }
+      });
+      const filtered = users.filter(u => u.id !== currentUserId && (u.name.toLowerCase().includes(query.toLowerCase()) || u.id.toLowerCase().includes(query.toLowerCase())));
+      callback(filtered);
+    }
+  },
+
+  // Firestore / LocalStorage Methods for Rooms (Chats)
+  getRooms(currentUserId, callback) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('rooms').onSnapshot(snapshot => {
+        const rooms = [];
+        snapshot.forEach(doc => {
+          const room = { id: doc.id, ...doc.data() };
+          if (room.isGroup || (room.participantIds && room.participantIds.includes(currentUserId))) {
+            rooms.push(room);
+          }
+        });
+        if (rooms.length === 0) {
+          // Seed default rooms if empty
+          window.AppData.defaultRooms.forEach(room => {
+            const seededRoom = { ...room };
+            if (!room.isGroup) {
+              seededRoom.participantIds = [currentUserId, room.id];
+            }
+            this.db.collection('rooms').doc(room.id).set(seededRoom);
+          });
+        } else {
+          callback(rooms);
+        }
+      }, error => {
+        console.error("Firestore rooms error, falling back to local:", error);
+        callback(this.getLocalRooms(currentUserId));
+      });
+    } else {
+      callback(this.getLocalRooms(currentUserId));
+      return () => {};
+    }
+  },
+
+  getLocalRooms(currentUserId) {
+    let rooms = localStorage.getItem('cs_chat_rooms');
+    if (!rooms) {
+      const defaultRooms = window.AppData.defaultRooms.map(r => {
+        const room = { ...r };
+        if (!room.isGroup) {
+          room.participantIds = [currentUserId, room.id];
+        }
+        return room;
+      });
+      localStorage.setItem('cs_chat_rooms', JSON.stringify(defaultRooms));
+      return defaultRooms;
+    }
+    return JSON.parse(rooms);
+  },
+
+  createRoom(room) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('rooms').doc(room.id).set(room);
+    } else {
+      const rooms = this.getLocalRooms(room.creator);
+      if (!rooms.some(r => r.id === room.id)) {
+        rooms.push(room);
+        localStorage.setItem('cs_chat_rooms', JSON.stringify(rooms));
+      }
+      return Promise.resolve(room);
+    }
+  },
+
+  // Get or Create a Direct Message Room
+  getOrCreateDM(currentUserId, targetUser, callback) {
+    const roomId = [currentUserId, targetUser.id].sort().join('_');
+    if (this.isFirebaseReady) {
+      const roomRef = this.db.collection('rooms').doc(roomId);
+      roomRef.get().then(doc => {
+        if (doc.exists) {
+          callback(doc.data());
+        } else {
+          const newRoom = {
+            id: roomId,
+            name: targetUser.name,
+            desc: targetUser.statusText || `Direct message with ${targetUser.name}`,
+            creator: 'System',
+            isGroup: false,
+            avatar: targetUser.avatar,
+            participantIds: [currentUserId, targetUser.id],
+            unreadCount: 0,
+            lastMessage: '',
+            lastMessageTime: Date.now()
+          };
+          roomRef.set(newRoom).then(() => {
+            callback(newRoom);
+          });
+        }
+      });
+    } else {
+      const rooms = this.getLocalRooms(currentUserId);
+      let room = rooms.find(r => r.id === roomId);
+      if (!room) {
+        room = {
+          id: roomId,
+          name: targetUser.name,
+          desc: targetUser.statusText || `Direct message with ${targetUser.name}`,
+          creator: 'System',
+          isGroup: false,
+          avatar: targetUser.avatar,
+          participantIds: [currentUserId, targetUser.id],
+          unreadCount: 0,
+          lastMessage: '',
+          lastMessageTime: Date.now()
+        };
+        rooms.push(room);
+        localStorage.setItem('cs_chat_rooms', JSON.stringify(rooms));
+      }
+      callback(room);
+    }
+  },
+
+  // Firestore / LocalStorage Methods for Messages
+  getMessages(roomId, callback) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('messages')
+        .where('roomId', '==', roomId)
+        .onSnapshot(snapshot => {
+          const messages = [];
+          snapshot.forEach(doc => {
+            messages.push({ id: doc.id, ...doc.data() });
+          });
+          // Sort in memory to guarantee no index errors
+          messages.sort((a, b) => a.timestamp - b.timestamp);
+          callback(messages);
+        }, error => {
+          console.error("Firestore messages error, falling back to local:", error);
+          callback(this.getLocalMessages(roomId));
+        });
+    } else {
+      callback(this.getLocalMessages(roomId));
+      return () => {};
+    }
+  },
+
+  getLocalMessages(roomId) {
+    let messages = localStorage.getItem('cs_chat_messages');
+    if (!messages) {
+      messages = JSON.stringify(window.AppData.mockMessages);
+      localStorage.setItem('cs_chat_messages', messages);
+    }
+    const allMessages = JSON.parse(messages);
+    return allMessages.filter(m => m.roomId === roomId);
+  },
+
+  sendMessage(msg) {
+    if (this.isFirebaseReady) {
+      // Update room's last message details
+      this.db.collection('rooms').doc(msg.roomId).update({
+        lastMessage: msg.isVoiceNote ? '🎙️ Voice Note' : msg.text,
+        lastMessageTime: msg.timestamp
+      }).catch(err => console.warn("Could not update room lastMessage:", err));
+
+      return this.db.collection('messages').add(msg);
+    } else {
+      let messages = localStorage.getItem('cs_chat_messages');
+      if (!messages) {
+        messages = JSON.stringify(window.AppData.mockMessages);
+      }
+      const allMessages = JSON.parse(messages);
+      allMessages.push(msg);
+      localStorage.setItem('cs_chat_messages', JSON.stringify(allMessages));
+
+      // Update local room
+      let rooms = this.getLocalRooms(msg.senderId);
+      const room = rooms.find(r => r.id === msg.roomId);
+      if (room) {
+        room.lastMessage = msg.isVoiceNote ? '🎙️ Voice Note' : msg.text;
+        room.lastMessageTime = msg.timestamp;
+        localStorage.setItem('cs_chat_rooms', JSON.stringify(rooms));
+      }
+      return Promise.resolve(msg);
+    }
+  },
+
+  deleteMessage(messageId) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('messages').doc(messageId).delete();
+    } else {
+      let messages = localStorage.getItem('cs_chat_messages');
+      if (messages) {
+        const allMessages = JSON.parse(messages);
+        const filtered = allMessages.filter(m => m.id !== messageId);
+        localStorage.setItem('cs_chat_messages', JSON.stringify(filtered));
+      }
+      return Promise.resolve();
+    }
+  },
+
+  updateMessageReactions(messageId, reactions) {
+    if (this.isFirebaseReady) {
+      return this.db.collection('messages').doc(messageId).update({ reactions });
+    } else {
+      let messages = localStorage.getItem('cs_chat_messages');
+      if (messages) {
+        const allMessages = JSON.parse(messages);
+        const msg = allMessages.find(m => m.id === messageId);
+        if (msg) {
+          msg.reactions = reactions;
+          localStorage.setItem('cs_chat_messages', JSON.stringify(allMessages));
+        }
+      }
+      return Promise.resolve();
+    }
+  }
+};
+
+/* --- Script: /app.js --- */
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyD2WobXmsXa6vFnkTW-qmU3ja01x-Yd40M",
+  authDomain: "gen-lang-client-0774401698.firebaseapp.com",
+  projectId: "gen-lang-client-0774401698",
+  storageBucket: "gen-lang-client-0774401698.firebasestorage.app",
+  messagingSenderId: "25363042028",
+  appId: "1:25363042028:web:3e9abd6b32f681c9d29fc9"
+};
+
+// Application State
+const state = {
+  currentUser: null,
+  activeRoom: 'general',
+  rooms: [],
+  messages: [],
+  isDemoMode: false,
+  theme: 'dark',
+  messageUnsubscribe: null,
+  roomsUnsubscribe: null,
+  roomUnsubscribe: null,
+  attachmentUrl: null,
+  attachmentName: null,
+  filterUnreadOnly: false,
+  
+  // Voice Note Simulation State
+  isRecording: false,
+  recordingDuration: 0,
+  recordingInterval: null,
+
+  // Status (Stories) State
+  activeStatusIndex: 0,
+  statusTimer: null,
+
+  // Virtual Keyboard State
+  isShiftActive: false,
+  isSymbolsActive: false
+};
+
+// DOM Elements
+const elements = {
+  authScreen: document.getElementById('auth-screen'),
+  mainWorkspace: document.getElementById('main-workspace'),
+  dbStatusBadge: document.getElementById('db-status-badge'),
+  btnGoogleLogin: document.getElementById('btn-google-login'),
+  btnDemoLogin: document.getElementById('btn-demo-login'),
+  connectionIndicator: document.getElementById('connection-indicator'),
+  roomsList: document.getElementById('rooms-list'),
+  activeRoomTitle: document.getElementById('active-room-title'),
+  activeRoomDesc: document.getElementById('active-room-desc'),
+  messagesContainer: document.getElementById('messages-container'),
+  messageForm: document.getElementById('message-form'),
+  messageInput: document.getElementById('message-input'),
+  btnThemeToggle: document.getElementById('btn-theme-toggle'),
+  btnLogout: document.getElementById('btn-logout'),
+  btnEditProfile: document.getElementById('btn-edit-profile'),
+  userName: document.getElementById('user-name'),
+  userAvatar: document.getElementById('user-avatar'),
+  userStatusDot: document.getElementById('user-status-dot'),
+  btnOpenSidebar: document.getElementById('btn-back-to-sidebar'),
+  sidebar: document.getElementById('sidebar'),
+  btnToggleDetails: document.getElementById('btn-toggle-details'),
+  btnCloseDetails: document.getElementById('btn-close-details'),
+  rightPanel: document.getElementById('right-panel'),
+  detailRoomName: document.getElementById('detail-room-name'),
+  detailRoomDesc: document.getElementById('detail-room-desc'),
+  detailRoomCreator: document.getElementById('detail-room-creator'),
+  detailRoomStatus: document.getElementById('detail-room-status'),
+  detailRoomId: document.getElementById('detail-room-id'),
+  detailAvatar: document.getElementById('detail-avatar'),
+  detailMembersSection: document.getElementById('detail-members-section'),
+  detailMembersList: document.getElementById('detail-members-list'),
+  roomSearch: document.getElementById('room-search'),
+  messageSearch: document.getElementById('message-search'),
+  typingIndicator: document.getElementById('typing-indicator'),
+  typingText: document.getElementById('typing-text'),
+  btnAttach: document.getElementById('btn-attach'),
+  attachmentPreview: document.getElementById('attachment-preview'),
+  attachmentNameEl: document.getElementById('attachment-name'),
+  btnRemoveAttachment: document.getElementById('btn-remove-attachment'),
+  btnEmoji: document.getElementById('btn-emoji'),
+  emojiPicker: document.getElementById('emoji-picker'),
+  emojiGrid: document.getElementById('emoji-grid'),
+  btnAddRoom: document.getElementById('btn-add-room'),
+  modalCreateRoom: document.getElementById('modal-create-room'),
+  formCreateRoom: document.getElementById('form-create-room'),
+  newRoomName: document.getElementById('new-room-name'),
+  newRoomDesc: document.getElementById('new-room-desc'),
+  modalEditProfile: document.getElementById('modal-edit-profile'),
+  formEditProfile: document.getElementById('form-edit-profile'),
+  editAvatarPreview: document.getElementById('edit-avatar-preview'),
+  btnRandomAvatar: document.getElementById('btn-random-avatar'),
+  editDisplayName: document.getElementById('edit-display-name'),
+  editStatusText: document.getElementById('edit-status-text'),
+  editAvailability: document.getElementById('edit-availability'),
+  btnFilterUnread: document.getElementById('btn-filter-unread'),
+  
+  // Voice Note Elements
+  btnSendMsg: document.getElementById('btn-send-msg'),
+  iconSend: document.getElementById('icon-send'),
+  iconMic: document.getElementById('icon-mic'),
+  voiceTimer: document.getElementById('voice-timer'),
+
+  // Status Elements
+  btnStatusStories: document.getElementById('btn-status-stories'),
+  modalStatusViewer: document.getElementById('modal-status-viewer'),
+  statusProgressContainer: document.getElementById('status-progress-container'),
+  statusUserAvatar: document.getElementById('status-user-avatar'),
+  statusUserName: document.getElementById('status-user-name'),
+  statusTime: document.getElementById('status-time'),
+  statusImage: document.getElementById('status-image'),
+  statusTextBg: document.getElementById('status-text-bg'),
+  statusTextContent: document.getElementById('status-text-content'),
+  btnCloseStatus: document.getElementById('btn-close-status'),
+  btnPrevStatus: document.getElementById('btn-prev-status'),
+  btnNextStatus: document.getElementById('btn-next-status'),
+  activeChatAvatar: document.getElementById('active-chat-avatar'),
+  activeChatStatusDot: document.getElementById('active-chat-status-dot'),
+  activeChatInfoTrigger: document.getElementById('active-chat-info-trigger'),
+  activeChatAvatarContainer: document.getElementById('active-chat-avatar-container'),
+
+  // New Chat by ID Elements
+  btnAddById: document.getElementById('btn-add-by-id'),
+  modalAddById: document.getElementById('modal-add-by-id'),
+  formAddById: document.getElementById('form-add-by-id'),
+  searchUserId: document.getElementById('search-user-id'),
+  discoverableUsersList: document.getElementById('discoverable-users-list'),
+  searchIdHelper: document.getElementById('search-id-helper'),
+  btnQuickStartDm: document.getElementById('btn-quick-start-dm'),
+
+  // Virtual Keyboard Elements
+  virtualKeyboard: document.getElementById('virtual-keyboard'),
+  btnCloseKeyboard: document.getElementById('btn-close-keyboard'),
+  keyboardRows: document.getElementById('keyboard-rows'),
+
+  // Live Search Results Elements
+  searchResultsContainer: document.getElementById('search-results-container'),
+  searchResultsList: document.getElementById('search-results-list'),
+  btnClearSearch: document.getElementById('btn-clear-search')
+};
+
+// Initialize Application
+function initApp() {
+  // Initialize Firebase
+  window.FirebaseManager.init(firebaseConfig, (success) => {
+    if (success) {
+      elements.dbStatusBadge.innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        Firebase Connected
+      `;
+      elements.dbStatusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6";
+      elements.connectionIndicator.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        Firebase Connected
+      `;
+    } else {
+      elements.dbStatusBadge.innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        Demo Mode Fallback
+      `;
+      elements.dbStatusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6";
+      elements.connectionIndicator.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        Demo Mode Active
+      `;
+    }
+  });
+
+  // Setup Auth Listener if Firebase is active
+  if (window.FirebaseManager.isFirebaseReady) {
+    window.FirebaseManager.auth.onAuthStateChanged(user => {
+      if (user) {
+        state.currentUser = {
+          id: user.uid,
+          name: user.displayName || 'Developer',
+          avatar: user.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=60',
+          status: 'online',
+          statusText: 'Active'
+        };
+        state.isDemoMode = false;
+        enterWorkspace();
+      } else {
+        exitWorkspace();
+      }
+    });
+  }
+
+  // Setup Theme
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.remove('dark');
+    state.theme = 'light';
+  } else {
+    document.documentElement.classList.add('dark');
+    state.theme = 'dark';
+  }
+
+  setupEventListeners();
+  renderEmojiPicker();
+  renderVirtualKeyboard();
+  updateInputButtonState();
+  lucide.createIcons();
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+  // Auth Buttons
+  elements.btnGoogleLogin.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    if (window.FirebaseManager.isFirebaseReady) {
+      window.FirebaseManager.signInWithGoogle().catch(err => {
+        console.error("Google Sign-In failed:", err);
+        alert("Google Sign-In failed. This is common in sandboxed environments. Please use 'Enter as Guest (Demo Mode)' to test the app instantly!");
+      });
+    } else {
+      alert("Firebase is not connected. Please use 'Enter as Guest (Demo Mode)'!");
+    }
+  });
+
+  elements.btnDemoLogin.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    state.currentUser = {
+      id: 'guest-' + Math.random().toString(36).substr(2, 9),
+      name: 'Guest Developer',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=60',
+      status: 'online',
+      statusText: 'Exploring WhatsApp Web 🚀'
+    };
+    state.isDemoMode = true;
+    enterWorkspace();
+  });
+
+  elements.btnLogout.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    if (state.isDemoMode) {
+      exitWorkspace();
+    } else {
+      window.FirebaseManager.signOut();
+    }
+  });
+
+  // Theme Toggle
+  elements.btnThemeToggle.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    if (state.theme === 'dark') {
+      document.documentElement.classList.remove('dark');
+      state.theme = 'light';
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.add('dark');
+      state.theme = 'dark';
+      localStorage.setItem('theme', 'dark');
+    }
+    renderVirtualKeyboard();
+  });
+
+  // Mobile Back to Sidebar
+  elements.btnOpenSidebar.addEventListener('click', () => {
+    elements.sidebar.classList.remove('-translate-x-full');
+  });
+
+  // Right Panel Toggle
+  elements.btnToggleDetails.addEventListener('click', () => {
+    elements.rightPanel.classList.toggle('hidden');
+  });
+  elements.btnCloseDetails.addEventListener('click', () => {
+    elements.rightPanel.classList.add('hidden');
+  });
+  elements.activeChatInfoTrigger.addEventListener('click', () => {
+    elements.rightPanel.classList.toggle('hidden');
+  });
+  elements.activeChatAvatarContainer.addEventListener('click', () => {
+    elements.rightPanel.classList.toggle('hidden');
+  });
+
+  // Message Form Submit
+  elements.messageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (state.isRecording) {
+      stopVoiceRecordingAndSend();
+    } else {
+      sendMessage();
+    }
+  });
+
+  // Message Input Keypress (Enter to send, Shift+Enter for newline)
+  elements.messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Real-Time Typing Indicator Sync
+  let typingTimeout;
+  elements.messageInput.addEventListener('input', () => {
+    updateInputButtonState();
+    if (state.currentUser) {
+      setTypingState(true);
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        setTypingState(false);
+      }, 2000);
+    }
+  });
+
+  // Virtual Keyboard Trigger on Input Focus
+  elements.messageInput.addEventListener('focus', () => {
+    showVirtualKeyboard();
+  });
+
+  elements.btnCloseKeyboard.addEventListener('click', () => {
+    hideVirtualKeyboard();
+  });
+
+  // Search Channels & Real-Time Global User Search
+  elements.roomSearch.addEventListener('input', (e) => {
+    const query = e.target.value.trim();
+    renderRooms(query);
+    
+    if (query.length >= 2) {
+      window.FirebaseManager.searchUsers(query, state.currentUser.id, (users) => {
+        renderSearchResults(users);
+      });
+    } else {
+      elements.searchResultsContainer.classList.add('hidden');
+    }
+  });
+
+  elements.btnClearSearch.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    elements.roomSearch.value = '';
+    elements.searchResultsContainer.classList.add('hidden');
+    renderRooms();
+  });
+
+  elements.btnQuickStartDm.addEventListener('click', () => {
+    const query = elements.roomSearch.value.trim();
+    if (query) {
+      startChatByUserId(query);
+      elements.roomSearch.value = '';
+      elements.searchIdHelper.classList.add('hidden');
+    }
+  });
+
+  // Search Messages
+  elements.messageSearch.addEventListener('input', (e) => {
+    renderMessages(e.target.value);
+  });
+
+  // Filter Unread Chats
+  elements.btnFilterUnread.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    state.filterUnreadOnly = !state.filterUnreadOnly;
+    elements.btnFilterUnread.classList.toggle('text-emerald-500', state.filterUnreadOnly);
+    renderRooms();
+  });
+
+  // Create Room Modal
+  elements.btnAddRoom.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    elements.modalCreateRoom.classList.remove('hidden');
+  });
+
+  // Start Chat by ID Modal
+  elements.btnAddById.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    renderDiscoverableUsers();
+    elements.modalAddById.classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.btn-close-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      elements.modalCreateRoom.classList.add('hidden');
+      elements.modalEditProfile.classList.add('hidden');
+      elements.modalAddById.classList.add('hidden');
+    });
+  });
+
+  elements.formCreateRoom.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = elements.newRoomName.value.trim();
+    const desc = elements.newRoomDesc.value.trim();
+    if (name) {
+      const newRoom = {
+        id: 'group-' + Math.random().toString(36).substr(2, 9),
+        name: name,
+        desc: desc || 'No description provided.',
+        creator: state.currentUser.name,
+        isGroup: true,
+        avatar: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=120&auto=format&fit=crop&q=60',
+        unreadCount: 0
+      };
+      window.FirebaseManager.createRoom(newRoom).then(() => {
+        elements.modalCreateRoom.classList.add('hidden');
+        elements.formCreateRoom.reset();
+        switchRoom(newRoom.id);
+        loadRooms();
+      });
+    }
+  });
+
+  elements.formAddById.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const userId = elements.searchUserId.value.trim();
+    if (userId) {
+      startChatByUserId(userId);
+      elements.modalAddById.classList.add('hidden');
+      elements.formAddById.reset();
+    }
+  });
+
+  // Edit Profile Modal
+  elements.btnEditProfile.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    elements.editDisplayName.value = state.currentUser.name;
+    elements.editStatusText.value = state.currentUser.statusText || '';
+    elements.editAvailability.value = state.currentUser.status;
+    elements.editAvatarPreview.src = state.currentUser.avatar;
+    elements.modalEditProfile.classList.remove('hidden');
+  });
+
+  elements.btnRandomAvatar.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    const randomId = Math.floor(Math.random() * 1000);
+    const newAvatar = `https://picsum.photos/id/${randomId}/150/150`;
+    elements.editAvatarPreview.src = newAvatar;
+  });
+
+  elements.formEditProfile.addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.currentUser.name = elements.editDisplayName.value.trim();
+    state.currentUser.statusText = elements.editStatusText.value.trim();
+    state.currentUser.status = elements.editAvailability.value;
+    state.currentUser.avatar = elements.editAvatarPreview.src;
+
+    window.FirebaseManager.syncUser(state.currentUser);
+    updateProfileUI();
+    elements.modalEditProfile.classList.add('hidden');
+  });
+
+  // Attachment Simulation
+  elements.btnAttach.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    const images = [
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=600&auto=format&fit=crop&q=60'
+    ];
+    const randomImg = images[Math.floor(Math.random() * images.length)];
+    state.attachmentUrl = randomImg;
+    state.attachmentName = "attached_code_snippet.png";
+    
+    elements.attachmentNameEl.textContent = state.attachmentName;
+    elements.attachmentPreview.classList.remove('hidden');
+    updateInputButtonState();
+  });
+
+  elements.btnRemoveAttachment.addEventListener('click', () => {
+    state.attachmentUrl = null;
+    state.attachmentName = null;
+    elements.attachmentPreview.classList.add('hidden');
+    updateInputButtonState();
+  });
+
+  // Emoji Picker Toggle
+  elements.btnEmoji.addEventListener('click', (e) => {
+    e.stopPropagation();
+    elements.emojiPicker.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!elements.emojiPicker.contains(e.target) && e.target !== elements.btnEmoji) {
+      elements.emojiPicker.classList.add('hidden');
+    }
+  });
+
+  // Status (Stories) Events
+  elements.btnStatusStories.addEventListener('click', () => {
+    window.SoundEffects.playClick();
+    openStatusViewer(0);
+  });
+
+  elements.btnCloseStatus.addEventListener('click', closeStatusViewer);
+  elements.btnPrevStatus.addEventListener('click', () => navigateStatus(-1));
+  elements.btnNextStatus.addEventListener('click', () => navigateStatus(1));
+}
+
+// Enter Workspace
+function enterWorkspace() {
+  elements.authScreen.classList.add('hidden');
+  elements.mainWorkspace.classList.remove('hidden');
+  
+  // Sync user profile to Firestore
+  window.FirebaseManager.syncUser(state.currentUser);
+
+  updateProfileUI();
+  loadRooms();
+  switchRoom(state.activeRoom);
+
+  if (state.isDemoMode) {
+    startDemoSimulation();
+  }
+}
+
+// Exit Workspace
+function exitWorkspace() {
+  elements.authScreen.classList.remove('hidden');
+  elements.mainWorkspace.classList.add('hidden');
+  state.currentUser = null;
+  if (state.messageUnsubscribe) {
+    state.messageUnsubscribe();
+  }
+  if (state.roomsUnsubscribe) {
+    state.roomsUnsubscribe();
+  }
+  if (state.roomUnsubscribe) {
+    state.roomUnsubscribe();
+  }
+}
+
+// Update Profile UI
+function updateProfileUI() {
+  elements.userName.textContent = state.currentUser.name;
+  elements.userAvatar.src = state.currentUser.avatar;
+  elements.userStatusDot.className = `absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-wa-headerLight dark:border-wa-headerDark status-${state.currentUser.status}`;
+}
+
+// Load Rooms (Chats)
+function loadRooms() {
+  if (state.roomsUnsubscribe) {
+    state.roomsUnsubscribe();
+  }
+  state.roomsUnsubscribe = window.FirebaseManager.getRooms(state.currentUser.id, rooms => {
+    state.rooms = rooms;
+    renderRooms();
+  });
+}
+
+// Render Rooms (WhatsApp Style Chat List)
+function renderRooms(filter = '') {
+  elements.roomsList.innerHTML = '';
+  
+  let filtered = state.rooms.filter(r => r.name.toLowerCase().includes(filter.toLowerCase()) || r.id.toLowerCase().includes(filter.toLowerCase()));
+  
+  if (state.filterUnreadOnly) {
+    filtered = filtered.filter(r => r.unreadCount > 0);
+  }
+  
+  filtered.forEach(room => {
+    const isActive = room.id === state.activeRoom;
+    const div = document.createElement('div');
+    div.className = `flex items-center gap-3 px-4 py-3 cursor-pointer transition-all border-b border-slate-100 dark:border-slate-900/30 ${isActive ? 'bg-wa-activeLight dark:bg-wa-activeDark' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'}`;
+    
+    // Get last message snippet
+    let lastMsgText = room.lastMessage || room.desc || 'No messages yet';
+    let lastMsgTime = '';
+    
+    if (room.lastMessageTime) {
+      lastMsgTime = new Date(room.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    div.innerHTML = `
+      <div class="relative shrink-0">
+        <img src="${room.avatar || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=120&auto=format&fit=crop&q=60'}" alt="Avatar" class="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-800">
+        ${!room.isGroup ? `<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-900 bg-emerald-500"></span>` : ''}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-1">
+          <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">${room.name}</h4>
+          <span class="text-[11px] text-slate-400 dark:text-slate-500">${lastMsgTime}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate pr-2">${lastMsgText}</p>
+          ${room.unreadCount > 0 ? `
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shrink-0">
+              ${room.unreadCount}
+            </span>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    
+    div.addEventListener('click', () => {
+      window.SoundEffects.playClick();
+      room.unreadCount = 0; // Clear unread count on click
+      switchRoom(room.id);
+    });
+    
+    elements.roomsList.appendChild(div);
+  });
+}
+
+// Render Live Search Results
+function renderSearchResults(users) {
+  elements.searchResultsList.innerHTML = '';
+  
+  if (users.length === 0) {
+    elements.searchResultsList.innerHTML = `
+      <div class="p-3 text-xs text-slate-500 dark:text-slate-400 text-center">
+        No global users found matching query.
+      </div>
+    `;
+    elements.searchResultsContainer.classList.remove('hidden');
+    return;
+  }
+
+  users.forEach(user => {
+    const div = document.createElement('div');
+    div.className = "flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-emerald-500/10 transition-all";
+    div.innerHTML = `
+      <img src="${user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=60'}" class="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-800">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${user.name}</h4>
+          <span class="text-[9px] font-mono text-slate-400">@${user.id}</span>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${user.statusText || 'Hey there! I am using WhatsApp.'}</p>
+      </div>
+    `;
+    
+    div.addEventListener('click', () => {
+      window.SoundEffects.playClick();
+      window.FirebaseManager.getOrCreateDM(state.currentUser.id, user, (room) => {
+        elements.roomSearch.value = '';
+        elements.searchResultsContainer.classList.add('hidden');
+        loadRooms();
+        switchRoom(room.id);
+      });
+    });
+    
+    elements.searchResultsList.appendChild(div);
+  });
+  
+  elements.searchResultsContainer.classList.remove('hidden');
+}
+
+// Switch Room
+function switchRoom(roomId) {
+  state.activeRoom = roomId;
+  let room = state.rooms.find(r => r.id === roomId) || window.AppData.defaultRooms.find(r => r.id === roomId);
+  
+  if (!room && roomId.includes('_')) {
+    // It's a DM room! Let's extract target user ID
+    const parts = roomId.split('_');
+    const targetUserId = parts.find(id => id !== state.currentUser.id);
+    if (targetUserId) {
+      room = {
+        id: roomId,
+        name: `User (${targetUserId})`,
+        desc: 'Direct Message',
+        creator: 'System',
+        isGroup: false,
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=60',
+        participantIds: [state.currentUser.id, targetUserId]
+      };
+      
+      window.FirebaseManager.getUser(targetUserId, (user) => {
+        if (user) {
+          elements.activeRoomTitle.textContent = user.name;
+          elements.activeChatAvatar.src = user.avatar;
+          elements.detailRoomName.textContent = user.name;
+          elements.detailRoomDesc.textContent = user.statusText || 'Hey there! I am using WhatsApp.';
+          elements.detailAvatar.src = user.avatar;
+        }
+      });
+    }
+  }
+
+  if (room) {
+    elements.activeRoomTitle.textContent = room.name;
+    elements.activeRoomDesc.textContent = room.isGroup ? 'Group Chat' : 'online';
+    elements.activeChatAvatar.src = room.avatar;
+    
+    // Update Right Panel Details
+    elements.detailRoomName.textContent = room.name;
+    elements.detailRoomDesc.textContent = room.desc;
+    elements.detailRoomCreator.textContent = room.creator || 'System';
+    elements.detailRoomStatus.textContent = room.isGroup ? 'Group Chat' : 'online';
+    elements.detailRoomId.textContent = `ID: ${room.id}`;
+    elements.detailAvatar.src = room.avatar;
+    
+    if (room.isGroup) {
+      elements.detailMembersSection.classList.remove('hidden');
+      renderGroupMembers();
+    } else {
+      elements.detailMembersSection.classList.add('hidden');
+    }
+  }
+
+  // Update active class in sidebar
+  renderRooms();
+
+  // Unsubscribe from previous room messages
+  if (state.messageUnsubscribe) {
+    state.messageUnsubscribe();
+  }
+
+  // Subscribe to new room messages
+  state.messageUnsubscribe = window.FirebaseManager.getMessages(roomId, messages => {
+    state.messages = messages;
+    renderMessages();
+    
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.senderId !== state.currentUser.id) {
+        window.SoundEffects.playReceive();
+      }
+    }
+  });
+
+  // Subscribe to active room document for typing indicator and updates
+  if (state.roomUnsubscribe) {
+    state.roomUnsubscribe();
+  }
+  if (window.FirebaseManager.isFirebaseReady) {
+    state.roomUnsubscribe = window.FirebaseManager.db.collection('rooms').doc(roomId).onSnapshot(doc => {
+      if (doc.exists) {
+        const roomData = doc.data();
+        const typingUsers = roomData.typingUsers || {};
+        const typingNames = Object.keys(typingUsers)
+          .filter(id => id !== state.currentUser.id)
+          .map(id => typingUsers[id]);
+          
+        if (typingNames.length > 0) {
+          elements.typingText.textContent = `${typingNames.join(', ')} is typing...`;
+          elements.typingIndicator.classList.remove('hidden');
+        } else {
+          elements.typingIndicator.classList.add('hidden');
+        }
+      }
+    });
+  }
+
+  // Close sidebar on mobile after switching room
+  elements.sidebar.classList.add('-translate-x-full');
+}
+
+// Sync Typing State to Firestore
+function setTypingState(isTyping) {
+  if (window.FirebaseManager.isFirebaseReady && state.activeRoom) {
+    const roomRef = window.FirebaseManager.db.collection('rooms').doc(state.activeRoom);
+    roomRef.get().then(doc => {
+      if (doc.exists) {
+        const typingUsers = doc.data().typingUsers || {};
+        if (isTyping) {
+          typingUsers[state.currentUser.id] = state.currentUser.name;
+        } else {
+          delete typingUsers[state.currentUser.id];
+        }
+        roomRef.update({ typingUsers });
+      }
+    }).catch(err => console.warn("Could not sync typing state:", err));
+  }
+}
+
+// Render Group Members
+function renderGroupMembers() {
+  elements.detailMembersList.innerHTML = '';
+  const members = [
+    { name: 'You', avatar: state.currentUser.avatar, role: 'Admin' },
+    { name: 'Alice (AI)', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=60', role: 'Member' },
+    { name: 'Bob (Developer)', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=60', role: 'Admin' }
+  ];
+
+  members.forEach(m => {
+    const div = document.createElement('div');
+    div.className = "flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800";
+    div.innerHTML = `
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <img src="${m.avatar}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+        <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">${m.name}</span>
+      </div>
+      <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded font-medium">${m.role}</span>
+    `;
+    elements.detailMembersList.appendChild(div);
+  });
+}
+
+// Render Messages (WhatsApp Style Bubbles)
+function renderMessages(filter = '') {
+  elements.messagesContainer.innerHTML = '';
+  const filtered = state.messages.filter(m => m.text && m.text.toLowerCase().includes(filter.toLowerCase()) || m.isVoiceNote);
+
+  if (filtered.length === 0) {
+    elements.messagesContainer.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-600 py-12">
+        <i data-lucide="message-square-dashed" class="w-12 h-12 mb-2"></i>
+        <p class="text-sm">No messages yet. Start the conversation!</p>
+      </div>
+    `;
+    lucide.createIcons();
+    return;
+  }
+
+  filtered.forEach(msg => {
+    const isOwnMessage = msg.senderId === state.currentUser.id;
+    const dateStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `flex w-full ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2 relative group message-bubble`;
+    
+    // Build reactions HTML
+    let reactionsHtml = '';
+    if (msg.reactions && Object.keys(msg.reactions).length > 0) {
+      reactionsHtml = `<div class="flex flex-wrap gap-1 mt-1">`;
+      for (const [emoji, count] of Object.entries(msg.reactions)) {
+        if (count > 0) {
+          reactionsHtml += `
+            <button class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs hover:bg-emerald-500/10 transition-all" onclick="reactToMessage('${msg.id}', '${emoji}')">
+              <span>${emoji}</span>
+              <span class="text-[9px] font-semibold text-slate-500">${count}</span>
+            </button>
+          `;
+        }
+      }
+      reactionsHtml += `</div>`;
+    }
+
+    // Attachment HTML
+    const attachmentHtml = msg.attachmentUrl ? `
+      <div class="mt-1 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 max-w-xs">
+        <img src="${msg.attachmentUrl}" alt="Attachment" class="w-full h-auto max-h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="window.open('${msg.attachmentUrl}', '_blank')">
+      </div>
+    ` : '';
+
+    // Voice Note HTML
+    let voiceNoteHtml = '';
+    if (msg.isVoiceNote) {
+      voiceNoteHtml = `
+        <div class="flex items-center gap-3 py-1.5 px-1 min-w-[240px]">
+          <button class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 hover:bg-emerald-600 transition-all" onclick="playSimulatedVoiceNote(this)">
+            <i data-lucide="play" class="w-5 h-5 ml-0.5 play-icon"></i>
+            <i data-lucide="pause" class="w-5 h-5 hidden pause-icon"></i>
+          </button>
+          <div class="flex-1">
+            <!-- Simulated Waveform -->
+            <div class="flex items-center gap-1 h-6 waveform-container">
+              <div class="waveform-bar h-2"></div>
+              <div class="waveform-bar h-4"></div>
+              <div class="waveform-bar h-3"></div>
+              <div class="waveform-bar h-5"></div>
+              <div class="waveform-bar h-2"></div>
+              <div class="waveform-bar h-4"></div>
+              <div class="waveform-bar h-3"></div>
+              <div class="waveform-bar h-5"></div>
+              <div class="waveform-bar h-2"></div>
+            </div>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">Voice Note (${msg.duration || '0:05'})</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // WhatsApp Style Bubble Layout
+    msgDiv.innerHTML = `
+      <div class="max-w-[75%] md:max-w-[60%] rounded-xl px-3 py-2 shadow-sm relative ${isOwnMessage ? 'bg-wa-bubbleSentLight dark:bg-wa-bubbleSentDark text-slate-800 dark:text-slate-100 rounded-tr-none' : 'bg-wa-bubbleRecLight dark:bg-wa-bubbleRecDark text-slate-800 dark:text-slate-100 rounded-tl-none'}">
+        
+        <!-- Sender Name (Only in Groups) -->
+        ${!isOwnMessage && state.activeRoom === 'general' ? `<span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 block mb-1">${msg.senderName}</span>` : ''}
+        
+        <!-- Message Content -->
+        <div class="text-sm leading-relaxed break-words">
+          ${msg.isVoiceNote ? voiceNoteHtml : msg.text}
+          ${attachmentHtml}
+        </div>
+
+        <!-- Timestamp & Read Status -->
+        <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+          <span>${dateStr}</span>
+          ${isOwnMessage ? `
+            <span class="read-status-ticks text-emerald-500">
+              <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
+            </span>
+          ` : ''}
+        </div>
+
+        ${reactionsHtml}
+      </div>
+
+      <!-- Hover Action Bar -->
+      <div class="absolute ${isOwnMessage ? 'left-0 -translate-x-full' : 'right-0 translate-x-full'} top-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg px-2 py-1 flex items-center gap-1.5 message-actions z-10">
+        <button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-emerald-500 transition-colors" onclick="reactToMessage('${msg.id}', '👍')" title="Like">👍</button>
+        <button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-emerald-500 transition-colors" onclick="reactToMessage('${msg.id}', '❤️')" title="Love">❤️</button>
+        <button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 hover:text-emerald-500 transition-colors" onclick="reactToMessage('${msg.id}', '🔥')" title="Fire">🔥</button>
+        ${isOwnMessage ? `
+          <button class="p-1 hover:bg-red-500/10 rounded text-slate-400 hover:text-red-500 transition-colors" onclick="deleteMessage('${msg.id}')" title="Delete">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        ` : ''}
+      </div>
+    `;
+    
+    elements.messagesContainer.appendChild(msgDiv);
+  });
+
+  // Auto Scroll to Bottom
+  elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+  lucide.createIcons();
+}
+
+// Update Input Button State (Send vs Mic)
+function updateInputButtonState() {
+  const text = elements.messageInput.value.trim();
+  if (text || state.attachmentUrl) {
+    elements.iconSend.classList.remove('hidden');
+    elements.iconMic.classList.add('hidden');
+  } else {
+    elements.iconSend.classList.add('hidden');
+    elements.iconMic.classList.remove('hidden');
+  }
+}
+
+// Send Message
+function sendMessage() {
+  const text = elements.messageInput.value.trim();
+  if (!text && !state.attachmentUrl) return;
+
+  const newMsg = {
+    id: 'msg-' + Math.random().toString(36).substr(2, 9),
+    roomId: state.activeRoom,
+    senderId: state.currentUser.id,
+    senderName: state.currentUser.name,
+    senderAvatar: state.currentUser.avatar,
+    text: text,
+    attachmentUrl: state.attachmentUrl,
+    timestamp: Date.now(),
+    reactions: {},
+    read: true
+  };
+
+  window.FirebaseManager.sendMessage(newMsg).then(() => {
+    window.SoundEffects.playSend();
+    elements.messageInput.value = '';
+    
+    // Reset attachment
+    state.attachmentUrl = null;
+    state.attachmentName = null;
+    elements.attachmentPreview.classList.add('hidden');
+    updateInputButtonState();
+    
+    // Trigger simulated bot response in Demo Mode
+    if (state.isDemoMode) {
+      simulateBotResponse(text);
+    }
+  });
+}
+
+// Voice Note Simulation
+window.playSimulatedVoiceNote = function(btn) {
+  const container = btn.closest('.message-bubble');
+  const playIcon = btn.querySelector('.play-icon');
+  const pauseIcon = btn.querySelector('.pause-icon');
+  const waveform = container.querySelector('.waveform-container');
+
+  window.SoundEffects.playRecording(true);
+  
+  if (playIcon.classList.contains('hidden')) {
+    // Pause
+    playIcon.classList.remove('hidden');
+    pauseIcon.classList.add('hidden');
+    waveform.classList.remove('playing');
+  } else {
+    // Play
+    playIcon.classList.add('hidden');
+    pauseIcon.classList.remove('hidden');
+    waveform.classList.add('playing');
+    
+    // Auto stop after 5 seconds
+    setTimeout(() => {
+      playIcon.classList.remove('hidden');
+      pauseIcon.classList.add('hidden');
+      waveform.classList.remove('playing');
+    }, 5000);
+  }
+};
+
+// Voice Recording Simulation
+function startVoiceRecording() {
+  state.isRecording = true;
+  state.recordingDuration = 0;
+  elements.voiceTimer.classList.remove('hidden');
+  elements.voiceTimer.textContent = "0:00";
+  window.SoundEffects.playRecording(true);
+
+  state.recordingInterval = setInterval(() => {
+    state.recordingDuration++;
+    const mins = Math.floor(state.recordingDuration / 60);
+    const secs = state.recordingDuration % 60;
+    elements.voiceTimer.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }, 1000);
+}
+
+function stopVoiceRecordingAndSend() {
+  clearInterval(state.recordingInterval);
+  state.isRecording = false;
+  elements.voiceTimer.classList.add('hidden');
+  window.SoundEffects.playRecording(false);
+
+  const durationStr = elements.voiceTimer.textContent;
+
+  const voiceMsg = {
+    id: 'msg-' + Math.random().toString(36).substr(2, 9),
+    roomId: state.activeRoom,
+    senderId: state.currentUser.id,
+    senderName: state.currentUser.name,
+    senderAvatar: state.currentUser.avatar,
+    isVoiceNote: true,
+    duration: durationStr,
+    timestamp: Date.now(),
+    reactions: {}
+  };
+
+  window.FirebaseManager.sendMessage(voiceMsg).then(() => {
+    window.SoundEffects.playSend();
+    if (state.isDemoMode) {
+      simulateBotResponse("[Sent a voice note]");
+    }
+  });
+}
+
+// Handle Mic Button Click
+elements.btnSendMsg.addEventListener('click', (e) => {
+  const text = elements.messageInput.value.trim();
+  if (!text && !state.attachmentUrl) {
+    e.preventDefault();
+    if (!state.isRecording) {
+      startVoiceRecording();
+    } else {
+      stopVoiceRecordingAndSend();
+    }
+  }
+});
+
+// Delete Message
+window.deleteMessage = function(messageId) {
+  window.SoundEffects.playClick();
+  window.FirebaseManager.deleteMessage(messageId).then(() => {
+    if (!window.FirebaseManager.isFirebaseReady) {
+      switchRoom(state.activeRoom);
+    }
+  });
+};
+
+// React to Message
+window.reactToMessage = function(messageId, emoji) {
+  window.SoundEffects.playClick();
+  const msg = state.messages.find(m => m.id === messageId);
+  if (msg) {
+    const reactions = msg.reactions || {};
+    reactions[emoji] = (reactions[emoji] || 0) + 1;
+    window.FirebaseManager.updateMessageReactions(messageId, reactions).then(() => {
+      if (!window.FirebaseManager.isFirebaseReady) {
+        switchRoom(state.activeRoom);
+      }
+    });
+  }
+};
+
+// Simulated Call
+window.simulateCall = function(type) {
+  window.SoundEffects.playClick();
+  alert(`Simulating ${type} call with ${elements.activeRoomTitle.textContent}... 📞`);
+};
+
+// --- WHATSAPP STATUS (STORIES) SYSTEM ---
+function openStatusViewer(index) {
+  state.activeStatusIndex = index;
+  const status = window.AppData.mockStatuses[index];
+  if (!status) return;
+
+  elements.modalStatusViewer.classList.remove('hidden');
+  elements.statusUserAvatar.src = status.userAvatar;
+  elements.statusUserName.textContent = status.userName;
+  elements.statusTime.textContent = status.timestamp;
+
+  // Render Progress Bars
+  elements.statusProgressContainer.innerHTML = '';
+  window.AppData.mockStatuses.forEach((s, i) => {
+    const bar = document.createElement('div');
+    bar.className = `h-1 flex-1 rounded-full bg-white/30 overflow-hidden`;
+    bar.innerHTML = `<div class="h-full bg-emerald-500 transition-all" style="width: ${i < index ? '100%' : '0%'}; transition-duration: 5000ms; transition-timing-function: linear;"></div>`;
+    elements.statusProgressContainer.appendChild(bar);
+  });
+
+  // Render Content
+  if (status.type === 'image') {
+    elements.statusImage.src = status.content;
+    elements.statusImage.classList.remove('hidden');
+    elements.statusTextBg.classList.add('hidden');
+  } else {
+    elements.statusImage.classList.add('hidden');
+    elements.statusTextBg.className = `w-full h-full flex items-center justify-center p-8 text-center text-2xl font-bold text-white rounded-2xl ${status.bgColor}`;
+    elements.statusTextContent.textContent = status.content;
+    elements.statusTextBg.classList.remove('hidden');
+  }
+
+  // Auto progress timer (5 seconds)
+  clearTimeout(state.statusTimer);
+  
+  // Animate current progress bar
+  setTimeout(() => {
+    const activeBar = elements.statusProgressContainer.children[index].querySelector('div');
+    if (activeBar) activeBar.style.width = '100%';
+  }, 50);
+
+  state.statusTimer = setTimeout(() => {
+    navigateStatus(1);
+  }, 5000);
+}
+
+function closeStatusViewer() {
+  elements.modalStatusViewer.classList.add('hidden');
+  clearTimeout(state.statusTimer);
+}
+
+// --- START CHAT BY USER ID SYSTEM ---
+function renderDiscoverableUsers() {
+  elements.discoverableUsersList.innerHTML = '';
+  window.AppData.discoverableUsers.forEach(user => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = "flex items-center gap-2.5 p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/5 text-left transition-all";
+    btn.innerHTML = `
+      <img src="${user.avatar}" class="w-8 h-8 rounded-full object-cover">
+      <div class="min-w-0">
+        <h4 class="text-xs font-bold text-slate-800 dark:text-white truncate">${user.name}</h4>
+        <span class="text-[10px] font-mono text-slate-400 block truncate">@${user.id}</span>
+      </div>
+    `;
+    btn.addEventListener('click', () => {
+      startChatByUserId(user.id);
+      elements.modalAddById.classList.add('hidden');
+    });
+    elements.discoverableUsersList.appendChild(btn);
+  });
+}
+
+function startChatByUserId(userId) {
+  window.SoundEffects.playClick();
+  const cleanId = userId.toLowerCase().trim();
+  
+  // Check if room already exists
+  let existingRoom = state.rooms.find(r => r.id === cleanId);
+  if (existingRoom) {
+    switchRoom(cleanId);
+    return;
+  }
+
+  // Check if it's a discoverable user
+  const discUser = window.AppData.discoverableUsers.find(u => u.id === cleanId);
+  
+  const targetUser = {
+    id: cleanId,
+    name: discUser ? discUser.name : `User (${cleanId})`,
+    avatar: discUser ? discUser.avatar : `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=60`,
+    status: 'online',
+    statusText: discUser ? discUser.desc : `Hey there! I am using WhatsApp.`
+  };
+
+  // Sync target user to Firestore so they can be searched
+  window.FirebaseManager.syncUser(targetUser).then(() => {
+    window.FirebaseManager.getOrCreateDM(state.currentUser.id, targetUser, (room) => {
+      loadRooms();
+      switchRoom(room.id);
+      
+      // Seed a welcome message from the user if they are discoverable
+      if (discUser) {
+        const welcomeMsg = {
+          id: 'msg-' + Math.random().toString(36).substr(2, 9),
+          roomId: room.id,
+          senderId: cleanId,
+          senderName: discUser.name,
+          senderAvatar: discUser.avatar,
+          text: discUser.reply || `Hey! Thanks for finding me using my ID. Let's chat! 🚀`,
+          timestamp: Date.now(),
+          reactions: {}
+        };
+        window.FirebaseManager.sendMessage(welcomeMsg);
+      }
+    });
+  });
+}
+
+function navigateStatus(direction) {
+  let nextIndex = state.activeStatusIndex + direction;
+  if (nextIndex >= 0 && nextIndex < window.AppData.mockStatuses.length) {
+    openStatusViewer(nextIndex);
+  } else {
+    closeStatusViewer();
+  }
+}
+
+// --- SIMULATED VIRTUAL KEYBOARD SYSTEM ---
+function renderVirtualKeyboard() {
+  elements.keyboardRows.innerHTML = '';
+  
+  const row1 = state.isSymbolsActive 
+    ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+    : ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
+    
+  const row2 = state.isSymbolsActive
+    ? ['-', '/', ':', ';', '(', ')', '$', '&', '@', '"']
+    : ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'];
+    
+  const row3 = state.isSymbolsActive
+    ? ['#+=', '.', ',', '?', '!', '’', 'Backspace']
+    : ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace'];
+    
+  const row4 = ['123', 'Space', 'Enter'];
+
+  const renderRow = (keys) => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = "flex justify-center gap-1.5";
+    
+    keys.forEach(key => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      
+      // Styling based on key type
+      let keyClass = "keyboard-key flex-1 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-sm border border-slate-300 dark:border-slate-800/50 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all ";
+      
+      if (key === 'Shift' || key === 'Backspace' || key === '123' || key === '#+=' || key === 'Enter') {
+        keyClass = "keyboard-key px-4 bg-slate-300 dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm border border-slate-400 dark:border-slate-700/50 text-xs font-bold hover:bg-slate-400 dark:hover:bg-slate-700 transition-all ";
+      }
+      if (key === 'Space') {
+        keyClass = "keyboard-key w-48 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-sm border border-slate-300 dark:border-slate-800/50 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all ";
+      }
+      if (key === 'Enter') {
+        keyClass += "bg-emerald-600 dark:bg-emerald-600 text-white hover:bg-emerald-500 dark:hover:bg-emerald-500 ";
+      }
+      
+      btn.className = keyClass;
+      
+      // Key Label / Icon
+      if (key === 'Backspace') {
+        btn.innerHTML = `<i data-lucide="delete" class="w-4 h-4"></i>`;
+      } else if (key === 'Shift') {
+        btn.innerHTML = `<i data-lucide="arrow-up-circle" class="w-4 h-4 ${state.isShiftActive ? 'text-emerald-500 fill-emerald-500/20' : ''}"></i>`;
+      } else if (key === 'Space') {
+        btn.textContent = 'Space';
+      } else {
+        btn.textContent = state.isShiftActive ? key.toUpperCase() : key;
+      }
+      
+      // Key Click Handler
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleVirtualKeyPress(key);
+      });
+      
+      rowDiv.appendChild(btn);
+    });
+    
+    elements.keyboardRows.appendChild(rowDiv);
+  };
+
+  renderRow(row1);
+  renderRow(row2);
+  renderRow(row3);
+  renderRow(row4);
+  
+  lucide.createIcons();
+}
+
+function handleVirtualKeyPress(key) {
+  window.SoundEffects.playClick();
+  const input = elements.messageInput;
+  
+  if (key === 'Backspace') {
+    input.value = input.value.slice(0, -1);
+  } else if (key === 'Shift') {
+    state.isShiftActive = !state.isShiftActive;
+    renderVirtualKeyboard();
+  } else if (key === '123' || key === '#+=') {
+    state.isSymbolsActive = !state.isSymbolsActive;
+    renderVirtualKeyboard();
+  } else if (key === 'Space') {
+    input.value += ' ';
+  } else if (key === 'Enter') {
+    sendMessage();
+  } else {
+    const char = state.isShiftActive ? key.toUpperCase() : key;
+    input.value += char;
+    // Auto-lowercase shift after one character like mobile keyboards
+    if (state.isShiftActive) {
+      state.isShiftActive = false;
+      renderVirtualKeyboard();
+    }
+  }
+  
+  input.focus();
+  updateInputButtonState();
+}
+
+function showVirtualKeyboard() {
+  elements.virtualKeyboard.classList.remove('hidden');
+  // Smooth scroll to bottom of messages when keyboard opens
+  setTimeout(() => {
+    elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+  }, 100);
+}
+
+// Hide Virtual Keyboard
+function hideVirtualKeyboard() {
+  elements.virtualKeyboard.classList.add('hidden');
+}
+
+// --- DEMO MODE SIMULATION & BOT RESPONSES ---
+function startDemoSimulation() {
+  // Periodically change bot statuses to make the workspace feel alive
+  setInterval(() => {
+    if (!state.isDemoMode) return;
+    const randomBot = state.rooms.find(r => !r.isGroup && r.id.startsWith('bot-'));
+    if (randomBot) {
+      const statuses = ['online', 'typing...', 'last seen today at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })];
+      randomBot.desc = statuses[Math.floor(Math.random() * statuses.length)];
+      renderRooms();
+    }
+  }, 15000);
+}
+
+function simulateBotResponse(userMessage) {
+  // Show typing indicator
+  setTimeout(() => {
+    elements.typingIndicator.classList.remove('hidden');
+    const activeRoomObj = state.rooms.find(r => r.id === state.activeRoom);
+    const botName = activeRoomObj ? activeRoomObj.name : "Alice (AI Assistant)";
+    elements.typingText.textContent = `${botName} is typing...`;
+    
+    setTimeout(() => {
+      elements.typingIndicator.classList.add('hidden');
+      let replyText = "That sounds interesting! Tell me more about your tech stack. 🚀";
+      
+      const msgLower = userMessage.toLowerCase();
+      if (msgLower.includes('hello') || msgLower.includes('hi')) {
+        replyText = `Hey there! Welcome to our WhatsApp Web clone. How is your coding day going?`;
+      } else if (msgLower.includes('react') || msgLower.includes('vue') || msgLower.includes('angular')) {
+        replyText = "Framework wars! Personally, I love React with Tailwind CSS. It makes building UI so fast! ⚛️";
+      } else if (msgLower.includes('firebase') || msgLower.includes('database')) {
+        replyText = "Firebase is awesome for real-time sync! Firestore makes it super easy to build chat apps like this one.";
+      } else if (msgLower.includes('design') || msgLower.includes('css')) {
+        replyText = "Good design is invisible. Tailwind CSS makes styling extremely intuitive! 🎨";
+      } else if (msgLower.includes('voice') || msgLower.includes('mic')) {
+        replyText = "I love voice notes! They make communication so much more personal. 🎙️";
+      }
+
+      triggerBotResponse(botName, replyText);
+    }, 1500 + Math.random() * 1500);
+  }, 500);
+}
+
+function triggerBotResponse(botName, text) {
+  const botMsg = {
+    id: 'msg-' + Math.random().toString(36).substr(2, 9),
+    roomId: state.activeRoom,
+    senderId: 'bot-alice',
+    senderName: botName,
+    senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=60',
+    text: text,
+    timestamp: Date.now(),
+    reactions: {}
+  };
+
+  window.FirebaseManager.sendMessage(botMsg).then(() => {
+    if (!window.FirebaseManager.isFirebaseReady) {
+      switchRoom(state.activeRoom);
+    }
+  });
+}
+
+// Render Emoji Picker
+function renderEmojiPicker() {
+  elements.emojiGrid.innerHTML = '';
+  window.AppData.emojis.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = "hover:bg-slate-100 dark:hover:bg-slate-800 p-1.5 rounded transition-all";
+    btn.textContent = emoji;
+    btn.addEventListener('click', () => {
+      elements.messageInput.value += emoji;
+      elements.emojiPicker.classList.add('hidden');
+      elements.messageInput.focus();
+      updateInputButtonState();
+    });
+    elements.emojiGrid.appendChild(btn);
+  });
+}
+
+// Start the App
+window.addEventListener('DOMContentLoaded', initApp);
+</script></body>
+</html>
